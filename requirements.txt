@@ -8,3 +8,4 @@ cfscrape
 urllib3
 uuid
 Gunicorn
+Flask
