@@ -91,6 +91,9 @@ def get_url():
     return jsonify(data)
 
 
+@app.route('/')
+def hello_world():
+    return "{'status':'working'}"
 
 if __name__ == '__main__':
     app.run(debug=False,host='0.0.0.0')
