@@ -1,0 +1,9 @@
+requests
+regex
+bs4
+lxml
+times
+cloudscraper
+cfscrape
+urllib3
+uuid
