@@ -76,8 +76,9 @@ def gdflixola(url):
         res = client.get(res["url"])
     except Exception as e:
         raise DirectDownloadLinkException(f'ERROR: {e.__class__.__name__}')
-    if (drive_link := etree.HTML(res.content).xpath("//a[contains(@class,'btn')]/@href")) and "drive.google.com" in drive_link[0]:
-        return title,drive_link[0]
+    drive_links = etree.HTML(res.content).xpath("//a[contains(@class,'btn')]/@href")
+    if drive_links and "drive.google.com" in drive_links[0]:
+        return title, drive_links[0]
     else:
         return 'FEk'
     
