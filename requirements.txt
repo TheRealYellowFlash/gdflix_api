@@ -7,3 +7,4 @@ cloudscraper
 cfscrape
 urllib3
 uuid
+Gunicorn
