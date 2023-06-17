@@ -6,7 +6,7 @@ from lxml import etree
 from uuid import uuid4
 import cloudscraper
 from bs4 import BeautifulSoup
-
+import re
 app = Flask(__name__)
 
 class DirectDownloadLinkException(Exception):
