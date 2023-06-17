@@ -81,14 +81,72 @@ def gdflixola(url):
         return title, drive_links[0]
     else:
         return 'FEk'
+        
+def gdtotv3(url):
+  headers = {
+      'authority': 'gdtot.pro',
+      'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+      'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+      'cache-control': 'max-age=0',
+      'content-type': 'application/x-www-form-urlencoded',
+      # 'cookie': 'XSRF-TOKEN=eyJpdiI6IldHODAxRTdybndJTXBWTE1UZTZLblE9PSIsInZhbHVlIjoic095UVZaMnV1QXc1Rk15MVg3TzduMVEwYzhCcFE3YmdmK0RwK0Q5WTNwM2UxTXFOalFrYzlpeXVMYlA4eW1WU0ZNT0hDdEY0Si80UVVIRlY2ZUxRWXFueCtybmFOMFBNSm50d0txOFRtOC9kYWlRQkZPRlZ1Yk9xWkZCTEp4UU0iLCJtYWMiOiI2ZmIwYjg0YTE0MDYzZGU0MmY5NTNjNzFiOTY3ZWMzZTVkYzM4NzkyYmE2MzYwZDE2NjEzYTg4ODhmYjFmN2Y5IiwidGFnIjoiIn0%3D; gdtot_proxy_session=eyJpdiI6IlJLb3cwSEh4VTgxNmtLVnlOK3FLanc9PSIsInZhbHVlIjoiMFRQUnVPY3NsbHUxbm5PaEdYTldTR3NvLzRHck8zZis3cENJSjVmc2pUUE95RTR1cmp0V0Y3U2JMSXo5NVozZUljT29nSHVOZGc5RHBxQVk1REVGb0Z0Q2Vqa2dueUNyMjV0RVIxQXVxaGxZVWRVem9pb2pEUG1TVDd4OExLVy8iLCJtYWMiOiIwODJhMWMyNTM2MTJiZjY4Nzg5MzkyZGU4MzRhMDU3NTkyNDgwMmI0ZWFiMThkNDI5OTRkNjI2NmZmYzNlMDMyIiwidGFnIjoiIn0%3D',
+      'origin': 'https://gdbot.xyz',
+      'referer': 'https://gdbot.xyz/',
+      'sec-ch-ua': '"Google Chrome";v="111", "Not(A:Brand";v="8", "Chromium";v="111"',
+      'sec-ch-ua-mobile': '?1',
+      'sec-ch-ua-platform': '"Android"',
+      'sec-fetch-dest': 'document',
+      'sec-fetch-mode': 'navigate',
+      'sec-fetch-site': 'same-origin',
+      'sec-fetch-user': '?1',
+      'upgrade-insecure-requests': '1',
+      'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Mobile Safari/537.36',
+  }
+  print(f"Trying gdtotv2 for {url}")
+  cget = create_scraper().request
+  try:
+      res = cget('GET', f'https://gdtot.pro/file/{url.split("/")[-1]}')
+  except Exception as e:
+      raise DirectDownloadLinkException(f'ERROR: {e.__class__.__name__}')
+  token_url = etree.HTML(res.content).xpath("//a[contains(@class,'inline-flex items-center justify-center')]/@href")
+  if not token_url:
+      try:
+          url = cget('GET', url).url
+          p_url = urlparse(url)
+          res = cget("GET",f"{p_url.scheme}://{p_url.hostname}/ddl/{url.split('/')[-1]}")
+      except Exception as e:
+          raise DirectDownloadLinkException(f'ERROR: {e.__class__.__name__}')
+      if (drive_link := findall(r"myDl\('(.*?)'\)", res.text)) and "drive.google.com" in drive_link[0]:
+          return drive_link[0]
+      else:
+          raise DirectDownloadLinkException('ERROR: Drive Link not found, Try in your broswer')
+  token_url = token_url[0]
+  try:
+      token_page = cget('GET', token_url)
+  except Exception as e:
+      raise DirectDownloadLinkException(f'ERROR: {e.__class__.__name__} with {token_url}')
+  path = findall('\("(.*?)"\)', token_page.text)
+  if not path:
+      raise DirectDownloadLinkException('ERROR: Cannot bypass this')
+  path = path[0]
+  raw = urlparse(token_url)
+  final_url = f'{raw.scheme}://{raw.hostname}{path}'
+  title,gdrive = gdflixola(final_url)
+  return gdrive
     
 @app.route('/api', methods=['GET'])
 def get_url():
     url = username = request.args.get('url')
-    title,gdrive_link = gdflixola(url)
-    data = {'title': title,
+    if 'gdtot' in url:
+        title,gdrive_link = gdtotv3(url)
+        data = {'title': title,
             'gdrive':gdrive_link}
-    return jsonify(data)
+        return jsonify(data)
+    else:
+        title,gdrive_link = gdflixola(url)
+        data = {'title': title,
+                'gdrive':gdrive_link}
+        return jsonify(data)
 
 
 @app.route('/')
