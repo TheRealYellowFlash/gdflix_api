@@ -140,7 +140,7 @@ def get_url():
     url = username = request.args.get('url')
     if 'gdtot' in url:
         title,gdrive_link = gdtotv3(url)
-        data = {'title': 'Ye1lowFlash,
+        data = {'title': 'Ye1lowFlash',
             'gdrive':gdrive_link}
         return jsonify(data)
     else:
