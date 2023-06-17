@@ -133,7 +133,7 @@ def gdtotv3(url):
   raw = urlparse(token_url)
   final_url = f'{raw.scheme}://{raw.hostname}{path}'
   title,gdrive = gdflixola(final_url)
-  return gdrive
+  return title,gdrive
     
 @app.route('/api', methods=['GET'])
 def get_url():
