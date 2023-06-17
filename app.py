@@ -133,14 +133,14 @@ def gdtotv3(url):
   raw = urlparse(token_url)
   final_url = f'{raw.scheme}://{raw.hostname}{path}'
   title,gdrive = gdflixola(final_url)
-  return title,gdrive
+  return gdrive
     
 @app.route('/api', methods=['GET'])
 def get_url():
     url = username = request.args.get('url')
     if 'gdtot' in url:
         title,gdrive_link = gdtotv3(url)
-        data = {'title': title,
+        data = {'title': 'Ye1lowFlash,
             'gdrive':gdrive_link}
         return jsonify(data)
     else:
